@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { View, FlatList, TextInput, StyleSheet } from "react-native";
+import { View, FlatList, TextInput, Button, StyleSheet } from "react-native";
 import { globalStyles, colors } from "../styles/globalStyles";
 import Recorder from "../components/Recorder";
 import VoiceNoteItem from "../components/VoiceNoteItem";
 import { getNotes, saveNote } from "../utils/storage";
 import { VoiceNote } from "../types/VoiceNote";
 import { v4 as uuidv4 } from "uuid";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { HomeStackParamList } from "../navigation/HomeStack";
 
+type Props = NativeStackScreenProps<HomeStackParamList, "VoiceJournal">;
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }: Props) {
   const [notes, setNotes] = useState<VoiceNote[]>([]);
   const [search, setSearch] = useState<string>("");
 
@@ -54,6 +57,10 @@ export default function HomeScreen() {
       <VoiceNoteItem note={item} refresh={loadNotes} />
     )}
   />
+   <Button
+        title="Open Settings"
+        onPress={() => navigation.navigate("Settings")}
+      />
 </View>
 
   );
@@ -61,12 +68,14 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   search: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#cccaca48",
     padding: 12,
     borderRadius: 8,
+    marginTop: 32,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: "#a0a1a35b",
   },
 });
+
 

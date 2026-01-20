@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
 
 export const colors = {
-  primary: "#4F46E5",
+  primary: "#ffffff",
   danger: "#DC2626",
   background: "#F9FAFB",
-  card: "#FFFFFF",
+  card: "#4c8afc9a",
   text: "#111827",
   muted: "#6B7280",
 };
@@ -12,6 +12,7 @@ export const colors = {
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 40,
     padding: 16,
     backgroundColor: colors.background,
   },

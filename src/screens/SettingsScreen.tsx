@@ -17,24 +17,37 @@ export default function SettingsScreen() {
   };
 
   return (
-   <View style={globalStyles.container}>
+    <View style={globalStyles.container}>
   <View style={globalStyles.card}>
     <Text style={globalStyles.title}>Recording Quality</Text>
 
-    <View style={styles.buttons}>
+    <View style={styles.buttonCard}>
       <Button title="Low" onPress={() => updateQuality("low")} />
+    </View>
+
+    <View style={styles.buttonCard}>
       <Button title="Medium" onPress={() => updateQuality("medium")} />
-      <Button title="High" onPress={() => updateQuality("high")} color={colors.primary} />
+    </View>
+
+    <View style={styles.buttonCard}>
+      <Button title="High" onPress={() => updateQuality("high")} />
     </View>
   </View>
 </View>
-
   );
 }
 
 const styles = StyleSheet.create({
-  buttons: {
-    gap: 8,
+  buttonCard: {
+    marginTop: 12,
+    padding: 5,
+    borderRadius: 8,
+    backgroundColor: "#ffffff",
+    elevation: 2,           // Android shadow
+    shadowColor: "#0a0a0a",    // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 });
 

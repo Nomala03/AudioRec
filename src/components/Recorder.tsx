@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     marginBottom: 8,
+    borderRadius: 8,
   },
 });
 
