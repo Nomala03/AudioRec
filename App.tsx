@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { Alert } from "react-native";
 import { Audio } from "expo-av";
-import HomeScreen from "./src/screens/HomeScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import BottomTabs from "./src/navigation/BottomTabs";
+
 
 export default function App() {
   useEffect(() => {
@@ -13,5 +15,9 @@ export default function App() {
     })();
   }, []);
 
-  return <HomeScreen />;
+  return ( 
+    <NavigationContainer>
+      <BottomTabs />
+    </NavigationContainer>
+  );  
 }
