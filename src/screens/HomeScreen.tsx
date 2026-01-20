@@ -4,7 +4,8 @@ import Recorder from "../components/Recorder";
 import VoiceNoteItem from "../components/VoiceNoteItem";
 import { getNotes, saveNote } from "../utils/storage";
 import { VoiceNote } from "../types/VoiceNote";
-import uuid from "react-native-uuid";
+import { v4 as uuidv4 } from "uuid";
+
 
 export default function HomeScreen() {
   const [notes, setNotes] = useState<VoiceNote[]>([]);
@@ -21,7 +22,7 @@ export default function HomeScreen() {
 
   const handleSave = async (uri: string): Promise<void> => {
     const note: VoiceNote = {
-      id: String(uuid.v4()),
+      id: uuidv4(),
       uri,
       date: new Date().toLocaleString(),
     };

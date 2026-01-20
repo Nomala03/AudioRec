@@ -26,7 +26,7 @@ export default function Recorder({ onSave }: RecorderProps) {
       },
       ios: {
         extension: ".wav",
-        audioQuality: Audio.IOSAudioQuality.HIGH,
+        audioQuality: Audio.IOSAudioQuality.HIGH, 
         sampleRate: 44100,
         numberOfChannels: 2,
         bitRate: 128000,
