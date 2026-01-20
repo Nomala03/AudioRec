@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Button, Alert, Text } from "react-native";
+import { View, Button, Alert, Text, StyleSheet } from "react-native";
+import { globalStyles, colors } from "../styles/globalStyles";
 import { Audio } from "expo-av";
 
 interface RecorderProps {
@@ -94,7 +95,25 @@ export default function Recorder({ onSave }: RecorderProps) {
   };
 
   return (
-    <View>
+    <View style={styles.recorder}>
+      {recording && <Text style={styles.timer}>⏺ Recording: {duration}s</Text>}
+
+      <View style={styles.buttonGroup}>
+        {recording ? (
+          <Button
+            title="Stop Recording"
+            onPress={stopRecording}
+            color={colors.danger}
+          />
+        ) : (
+          <Button
+            title="New Voice Note"
+            onPress={startRecording}
+            color={colors.primary}
+          />
+        )}
+      </View>
+
       {recording && !isPaused && (
         <Button title="Pause" onPress={pauseRecording} />
       )}
@@ -105,3 +124,21 @@ export default function Recorder({ onSave }: RecorderProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  recorder: {
+    backgroundColor: colors.card,
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 16,
+  },
+  timer: {
+    fontWeight: "600",
+    color: colors.danger,
+    marginBottom: 8,
+  },
+  buttonGroup: {
+    marginBottom: 8,
+  },
+});
+
