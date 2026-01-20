@@ -10,7 +10,7 @@ export default function Recorder({ onSave }: RecorderProps) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [duration, setDuration] = useState<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
+  const [isPaused, setIsPaused] = useState(false);
 
   const startTimer = () => {
     timerRef.current = setInterval(() => {
@@ -24,6 +24,20 @@ export default function Recorder({ onSave }: RecorderProps) {
       timerRef.current = null;
     }
     setDuration(0);
+  };
+
+  const pauseRecording = async () => {
+    if (!recording) return;
+    await recording.pauseAsync();
+    stopTimer();
+    setIsPaused(true);
+  };
+
+  const resumeRecording = async () => {
+    if (!recording) return;
+    await recording.startAsync();
+    startTimer();
+    setIsPaused(false);
   };
 
   const startRecording = async () => {
@@ -81,12 +95,12 @@ export default function Recorder({ onSave }: RecorderProps) {
 
   return (
     <View>
-      {recording && <Text>Recording: {duration}s</Text>}
+      {recording && !isPaused && (
+        <Button title="Pause" onPress={pauseRecording} />
+      )}
 
-      {recording ? (
-        <Button title="Stop Recording" onPress={stopRecording} />
-      ) : (
-        <Button title="New Voice Note" onPress={startRecording} />
+      {recording && isPaused && (
+        <Button title="Resume" onPress={resumeRecording} />
       )}
     </View>
   );
