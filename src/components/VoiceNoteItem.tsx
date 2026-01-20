@@ -12,8 +12,11 @@ interface Props {
 
 export default function VoiceNoteItem({ note, refresh }: Props) {
   const [rate, setRate] = useState(1);
-  const playSound = async (): Promise<void> => {
-    const { sound } = await Audio.Sound.createAsync({ uri: note.uri });
+  const playSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: note.uri },
+      { rate, shouldCorrectPitch: true },
+    );
     await sound.playAsync();
   };
 
@@ -58,6 +61,3 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 });
-
-
-
