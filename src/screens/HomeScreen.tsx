@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { View, FlatList, TextInput } from "react-native";
+import { View, FlatList, TextInput, StyleSheet } from "react-native";
+import { globalStyles, colors } from "../styles/globalStyles";
 import Recorder from "../components/Recorder";
 import VoiceNoteItem from "../components/VoiceNoteItem";
 import { getNotes, saveNote } from "../utils/storage";
@@ -36,23 +37,36 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={{ padding: 20 }}>
-      <TextInput
-        placeholder="Search voice notes..."
-        value={search}
-        onChangeText={setSearch}
-        style={{ borderBottomWidth: 1, marginBottom: 10 }}
-      />
+    <View style={globalStyles.container}>
+  <TextInput
+    placeholder="Search voice notes..."
+    value={search}
+    onChangeText={setSearch}
+    style={styles.search}
+  />
 
-      <Recorder onSave={handleSave} />
+  <Recorder onSave={handleSave} />
 
-      <FlatList
-        data={filteredNotes}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <VoiceNoteItem note={item} refresh={loadNotes} />
-        )}
-      />
-    </View>
+  <FlatList
+    data={filteredNotes}
+    keyExtractor={item => item.id}
+    renderItem={({ item }) => (
+      <VoiceNoteItem note={item} refresh={loadNotes} />
+    )}
+  />
+</View>
+
   );
 }
+
+const styles = StyleSheet.create({
+  search: {
+    backgroundColor: "#FFF",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+});
+
