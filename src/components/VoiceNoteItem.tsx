@@ -1,5 +1,5 @@
 import { View, Text, Button, StyleSheet } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { globalStyles, colors } from "../styles/globalStyles";
 import { Audio } from "expo-av";
 import { VoiceNote } from "../types/VoiceNote";
@@ -11,13 +11,49 @@ interface Props {
 }
 
 export default function VoiceNoteItem({ note, refresh }: Props) {
-  const [rate, setRate] = useState(1);
-  const playSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
+  const [rate, setRate] = useState<number>(1);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      sound?.unloadAsync();
+    };
+  }, [sound]);
+
+  const playSound = async (): Promise<void> => {
+
+    if (sound) {
+      await sound.unloadAsync();
+      setSound(null);
+    }
+
+    const { sound: newSound } = await Audio.Sound.createAsync(
       { uri: note.uri },
-      { rate, shouldCorrectPitch: true },
+      { rate, shouldCorrectPitch: true }
     );
-    await sound.playAsync();
+
+    setSound(newSound);
+    setIsPlaying(true);
+
+    newSound.setOnPlaybackStatusUpdate((status) => {
+      if (!status.isLoaded) return;
+
+      if (status.didJustFinish) {
+        setIsPlaying(false);
+      }
+    });
+
+    await newSound.playAsync();
+  };
+
+  const changeRate = async (newRate: number): Promise<void> => {
+    setRate(newRate);
+
+    if (sound) {
+      await sound.setRateAsync(newRate, true);
+    }
   };
 
   const remove = async (): Promise<void> => {
@@ -33,15 +69,22 @@ export default function VoiceNoteItem({ note, refresh }: Props) {
       <Text style={styles.speed}>Speed: {rate}x</Text>
 
       <View style={styles.controls}>
-        <Button title="Play" onPress={playSound} />
-        <Button title="Delete" onPress={remove} color={colors.danger} />
+        <Button
+          title={isPlaying ? "Playing..." : "Play"}
+          onPress={playSound}
+        />
+        <Button
+          title="Delete"
+          onPress={remove}
+          color={colors.danger}
+        />
       </View>
 
       <View style={styles.speedControls}>
-        <Button title="0.5x" onPress={() => setRate(0.5)} />
-        <Button title="1x" onPress={() => setRate(1)} />
-        <Button title="1.5x" onPress={() => setRate(1.5)} />
-        <Button title="2x" onPress={() => setRate(2)} />
+        <Button title="0.5x" onPress={() => changeRate(0.5)} />
+        <Button title="1x" onPress={() => changeRate(1)} />
+        <Button title="1.5x" onPress={() => changeRate(1.5)} />
+        <Button title="2x" onPress={() => changeRate(2)} />
       </View>
     </View>
   );

@@ -71,11 +71,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#cccaca48",
     padding: 12,
     borderRadius: 8,
-    marginTop: 32,
+    marginTop: 10,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: "#a0a1a35b",
   },
 });
+
 
 

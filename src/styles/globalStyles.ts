@@ -12,7 +12,6 @@ export const colors = {
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
     padding: 16,
     backgroundColor: colors.background,
   },
