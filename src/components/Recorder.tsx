@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { View, Button, Alert, Text, StyleSheet } from "react-native";
-import { globalStyles, colors } from "../styles/globalStyles";
 import { Audio } from "expo-av";
+import { colors } from "../styles/globalStyles";
 
 interface RecorderProps {
-  onSave: (uri: string) => void;
+  onSave: (uri: string, duration: number) => void;
 }
 
 export default function Recorder({ onSave }: RecorderProps) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [duration, setDuration] = useState<number>(0);
+  const [duration, setDuration] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -20,11 +20,42 @@ export default function Recorder({ onSave }: RecorderProps) {
   };
 
   const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+  };
+
+  const startRecording = async () => {
+    const permission = await Audio.requestPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Permission required");
+      return;
     }
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
+
+    const { recording } = await Audio.Recording.createAsync(
+      Audio.RecordingOptionsPresets.HIGH_QUALITY
+    );
+
+    setRecording(recording);
     setDuration(0);
+    startTimer();
+  };
+
+  const stopRecording = async () => {
+    if (!recording) return;
+
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+
+    stopTimer();
+    setRecording(null);
+    setIsPaused(false);
+
+    if (uri) onSave(uri, duration);
   };
 
   const pauseRecording = async () => {
@@ -41,92 +72,39 @@ export default function Recorder({ onSave }: RecorderProps) {
     setIsPaused(false);
   };
 
-  const startRecording = async () => {
-    const permission = await Audio.requestPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert("Permission required");
-      return;
-    }
-
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      playsInSilentModeIOS: true,
-    });
-
-    const { recording } = await Audio.Recording.createAsync({
-      android: {
-        extension: ".m4a",
-        outputFormat: Audio.AndroidOutputFormat.MPEG_4,
-        audioEncoder: Audio.AndroidAudioEncoder.AAC,
-        sampleRate: 44100,
-        numberOfChannels: 2,
-        bitRate: 128000,
-      },
-      ios: {
-        extension: ".wav",
-        audioQuality: Audio.IOSAudioQuality.HIGH,
-        sampleRate: 44100,
-        numberOfChannels: 2,
-        bitRate: 128000,
-        linearPCMBitDepth: 16,
-        linearPCMIsBigEndian: false,
-        linearPCMIsFloat: false,
-      },
-      web: {
-        mimeType: "audio/webm",
-        bitsPerSecond: 128000,
-      },
-    });
-
-    setRecording(recording);
-    startTimer();
-  };
-
-  const stopRecording = async () => {
-    if (!recording) return;
-
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-
-    stopTimer();
-    setRecording(null);
-
-    if (uri) onSave(uri);
-  };
-
   return (
-    <View style={styles.recorder}>
-      {recording && <Text style={styles.timer}>⏺ Recording: {duration}s</Text>}
+    <View style={styles.container}>
+      {recording && (
+        <Text style={styles.timer}>⏺ Recording: {duration}s</Text>
+      )}
 
-      <View style={styles.buttonGroup}>
-        {recording ? (
+      {!recording ? (
+        <Button
+          title="New Voice Note"
+          onPress={startRecording}
+          color={colors.primary}
+        />
+      ) : (
+        <>
           <Button
             title="Stop Recording"
             onPress={stopRecording}
             color={colors.danger}
           />
-        ) : (
-          <Button
-            title="New Voice Note"
-            onPress={startRecording}
-            color={colors.primary}
-          />
-        )}
-      </View>
 
-      {recording && !isPaused && (
-        <Button title="Pause" onPress={pauseRecording} />
-      )}
-
-      {recording && isPaused && (
-        <Button title="Resume" onPress={resumeRecording} />
+          {!isPaused ? (
+            <Button title="Pause" onPress={pauseRecording} />
+          ) : (
+            <Button title="Resume" onPress={resumeRecording} />
+          )}
+        </>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  recorder: {
+  container: {
     backgroundColor: colors.card,
     padding: 16,
     borderRadius: 10,
@@ -136,10 +114,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: colors.danger,
     marginBottom: 8,
-  },
-  buttonGroup: {
-    marginBottom: 8,
-    borderRadius: 8,
   },
 });
 

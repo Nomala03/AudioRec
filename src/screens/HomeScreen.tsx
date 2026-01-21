@@ -3,7 +3,7 @@ import { View, FlatList, TextInput, Button, StyleSheet } from "react-native";
 import { globalStyles, colors } from "../styles/globalStyles";
 import Recorder from "../components/Recorder";
 import VoiceNoteItem from "../components/VoiceNoteItem";
-import { getNotes, saveNote } from "../utils/storage";
+import { saveNote, getNotes } from "../utils/storage";
 import { VoiceNote } from "../types/VoiceNote";
 import { v4 as uuidv4 } from "uuid";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
