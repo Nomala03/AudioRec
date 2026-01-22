@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { View, Button, Alert, Text, StyleSheet } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import { View, Button, Alert, Text, StyleSheet, Platform } from "react-native";
 import { Audio } from "expo-av";
 import { colors } from "../styles/globalStyles";
 
@@ -10,8 +10,8 @@ interface RecorderProps {
 export default function Recorder({ onSave }: RecorderProps) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [duration, setDuration] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startTimer = () => {
     timerRef.current = setInterval(() => {
@@ -25,8 +25,8 @@ export default function Recorder({ onSave }: RecorderProps) {
   };
 
   const startRecording = async () => {
-    const permission = await Audio.requestPermissionsAsync();
-    if (!permission.granted) {
+    const { status } = await Audio.requestPermissionsAsync();
+    if (status !== "granted") {
       Alert.alert("Permission required");
       return;
     }
@@ -42,6 +42,7 @@ export default function Recorder({ onSave }: RecorderProps) {
 
     setRecording(recording);
     setDuration(0);
+    setIsPaused(false);
     startTimer();
   };
 
@@ -60,17 +61,30 @@ export default function Recorder({ onSave }: RecorderProps) {
 
   const pauseRecording = async () => {
     if (!recording) return;
-    await recording.pauseAsync();
-    stopTimer();
-    setIsPaused(true);
+
+    if (Platform.OS === "ios") {
+      await recording.pauseAsync();
+      stopTimer();
+      setIsPaused(true);
+    } else {
+      Alert.alert("Pause not supported on Android");
+    }
   };
 
   const resumeRecording = async () => {
     if (!recording) return;
+
     await recording.startAsync();
     startTimer();
     setIsPaused(false);
   };
+
+  useEffect(() => {
+    return () => {
+      stopTimer();
+      recording?.stopAndUnloadAsync();
+    };
+  }, [recording]);
 
   return (
     <View style={styles.container}>
@@ -116,4 +130,3 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
-

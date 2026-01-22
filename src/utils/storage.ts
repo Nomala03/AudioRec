@@ -1,19 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
+import { VoiceNote } from "../types/VoiceNote";
 
 const STORAGE_KEY = "VOICE_NOTES";
 const AUDIO_DIR = FileSystem.documentDirectory + "voice-notes/";
 
-async function ensureDirExists() {
-  const dir = await FileSystem.getInfoAsync(AUDIO_DIR);
-  if (!dir.exists) {
+async function ensureDirExists(): Promise<void> {
+  const dirInfo = await FileSystem.getInfoAsync(AUDIO_DIR);
+  if (!dirInfo.exists) {
     await FileSystem.makeDirectoryAsync(AUDIO_DIR, { intermediates: true });
   }
 }
 
 export async function saveNote(
   tempUri: string,
-  duration: number
+  duration: number,
 ): Promise<void> {
   await ensureDirExists();
 

@@ -5,7 +5,6 @@ import Recorder from "../components/Recorder";
 import VoiceNoteItem from "../components/VoiceNoteItem";
 import { saveNote, getNotes } from "../utils/storage";
 import { VoiceNote } from "../types/VoiceNote";
-import { v4 as uuidv4 } from "uuid";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../navigation/HomeStack";
 
@@ -24,14 +23,8 @@ export default function HomeScreen({ navigation }: Props) {
     loadNotes();
   }, []);
 
-  const handleSave = async (uri: string): Promise<void> => {
-    const note: VoiceNote = {
-      id: uuidv4(),
-      uri,
-      date: new Date().toLocaleString(),
-    };
-
-    await saveNote(note);
+  const handleSave = async (uri: string, duration: number): Promise<void> => {
+    await saveNote(uri, duration);
     loadNotes();
   };
 
